@@ -12,6 +12,30 @@ import numpy as np
 import functions
 import sklearn.tree as tree
 import sklearn.naive_bayes as bayes
+import pandas as pd
+from sklearn.model_selection import cross_validate, KFold
+
+def createArrays(src):
+    f = open(src, "r")
+    xValues = []
+    yValues = []
+    for line in f:
+        arr = line.split("\t")
+        x = []
+        for i in range(0, len(arr)-1):
+            value = arr[i]
+            if value == "Absent":
+                value = 0
+            elif value == "Present":
+                value = 1
+            else:
+                value = float(arr[i])
+            x.append(value)
+        y = int(arr[len(arr)-1])
+        xValues.append(x)
+        yValues.append(y)
+    f.close()
+    return xValues, yValues
 
 """
 # create arrays to use from the data
@@ -37,21 +61,21 @@ params_bayes1 = {
 
 }
 params_knn1 = {
-    'n_neighbors': [3, 5, 7, 10],
-    'weights': ['uniform', 'distance']}
+    'kneighborsclassifier__n_neighbors': [3, 5, 7, 10],
+    'kneighborsclassifier__weights': ['uniform', 'distance']}
 params_svm1 = {
 
-    'C': [0.01, 0.1, 1, 10],
+    'svc__C': [0.01, 0.1, 1, 10],
 
-    'kernel': ['linear', 'rbf']
+    'svc__kernel': ['linear', 'rbf']
 }
 params_nn1 = {
-    'hidden_layer_sizes': [(200,100), (100,90), (10, 60)],
+    'mlpclassifier__hidden_layer_sizes': [(200,100), (100,90), (10, 60)],
 
-    'alpha': [0.0001, 0.05],
+    'mlpclassifier__alpha': [0.0001, 0.05],
 
-    'learning_rate': ['constant', 'adaptive'],
-    'solver': ['sgd', 'adam'],
+    'mlpclassifier__learning_rate': ['constant', 'adaptive'],
+    'mlpclassifier__solver': ['sgd', 'adam'],
 }
 
 
@@ -60,7 +84,7 @@ def hyperparameter_tune_tree(X:np.ndarray, y:np.ndarray,params_dt:dict)->dict:
     hyp_tree  = GridSearchCV(tree.DecisionTreeClassifier(), params_dt)
     hyp_tree.fit(X_train, y_train)
     #results = {'best_estimate':hyp_tree.best_estimator_, 'best_parmas': hyp_tree.best_params_, }
-    return hyp_tree.best_estimator_, hyp_tree.best_params_, 
+    return hyp_tree.best_estimator_, hyp_tree.best_params_
 
 def hyperparameter_tune_naive_bayes(X:np.ndarray, y:np.ndarray,params_nb:dict)->dict:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47)
@@ -92,3 +116,14 @@ def hyperparameter_tune_nn(X:np.ndarray, y:np.ndarray, params_nn:dict)->dict:
 def run_everything(X:np.ndarray, y:np.ndarray, params_dt: dict, params_nb: dict, params_knn: dict, params_svm: dict, params_nn: dict):
     pass
 
+def applyCrossValidation(model, X, y):
+    kf = KFold(n_splits=10, shuffle=False)
+    scores = cross_validate(model, X, y, cv = kf, scoring=['accuracy', 'precision', 'recall', 'f1'])
+    results = {
+
+        'mean accuracy': scores['test_accuracy'].mean(),
+        'mean precision': scores['test_precision'].mean(),
+        'mean recall': scores['test_recall'].mean(),
+        'mean f1 score': scores['test_f1'].mean()
+    }
+    return results
