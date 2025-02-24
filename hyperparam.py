@@ -127,3 +127,34 @@ def applyCrossValidation(model, X, y):
         'mean f1 score': scores['test_f1'].mean()
     }
     return results
+
+def hyperparamter_tune_save(X, y, params_dt = params_dt1, params_bayes = params_bayes1, params_knn = params_knn1, params_svm = params_svm1, params_nn = params_nn1, filename='evaluation.csv'):
+    results = []
+
+    dt_model, dt_params = hyperparameter_tune_tree(X, y, params_dt)
+    dt_cv = applyCrossValidation(dt_model, X, y)
+    results.append({'Model': 'Decision Tree', 'Params': dt_params, **dt_cv})
+
+    bayes_model, bayes_params = hyperparameter_tune_naive_bayes(X, y, params_bayes)
+    bayes_cv = applyCrossValidation(bayes_model, X, y)
+    results.append({'Model': 'Naive Bayes', 'Params': bayes_params, **bayes_cv})
+
+    knn_model, knn_params = hyperparameter_tune_knn(X, y, params_knn)
+    knn_cv = applyCrossValidation(knn_model, X, y)
+    results.append({'Model': 'KNN', 'Params': knn_params, **knn_cv})
+
+    svm_model, svm_params = hyperparameter_tune_svm(X, y, params_svm)
+    svm_cv = applyCrossValidation(svm_model, X, y)
+    results.append({'Model': 'SVM', 'Params': svm_params, **svm_cv})
+
+    nn_model, nn_params = hyperparameter_tune_nn(X, y, params_nn)
+    nn_cv = applyCrossValidation(nn_model, X, y)
+    results.append({'Model': 'NN', 'Params': nn_params, **nn_cv})
+
+    df = pd.DataFrame(results)
+    df.to_csv(filename, index=False)
+
+X, y= createArrays(src='/Users/prestonstuff/Documents/GitHub/project1b/project1_dataset2.txt')
+
+
+hyperparamter_tune_save(X, y)
