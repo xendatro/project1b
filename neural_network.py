@@ -40,11 +40,10 @@ X_test = scaler.transform(X_test)
 mlp = MLPClassifier(max_iter=100, random_state=47)
 
 param_grid = {
-    'hidden_layer_sizes': [(200,100), (100,90), (25, 100), (10, 60)],
-
+    'hidden_layer_sizes': [(200,100), (100,90), (10, 60)],
 
     'alpha': [0.0001, 0.05],
-    
+
     'learning_rate': ['constant', 'adaptive'],
     'solver': ['sgd', 'adam'],
 }

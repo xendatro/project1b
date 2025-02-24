@@ -21,36 +21,74 @@ x2, y2 = functions.createArrays("src/files/set2.txt")
 print(compute_class_weight(class_weight="balanced", classes=np.array([0, 1]), y=y1))
 print(compute_class_weight(class_weight="balanced", classes=np.array([0, 1]), y=y2))
 """
+params_dt1 = {
+    'max_depth': [None, 5, 10, 15],
+    'min_samples_split': [2, 5, 10],
 
-def hyperparameter_tune_tree(X:np.ndarray, y:np.ndarray,params_dt:dict):
+    'min_samples_leaf': [1, 5, 10],
+    'max_leaf_nodes': [None, 5, 10, 15],
+
+    'splitter': ['best', 'random']
+
+}
+params_bayes1 = {
+
+    'var_smoothing': [1e-10, 1e-9, 1e-8]
+
+}
+params_knn1 = {
+    'n_neighbors': [3, 5, 7, 10],
+    'weights': ['uniform', 'distance']}
+params_svm1 = {
+
+    'C': [0.01, 0.1, 1, 10],
+
+    'kernel': ['linear', 'rbf']
+}
+params_nn1 = {
+    'hidden_layer_sizes': [(200,100), (100,90), (10, 60)],
+
+    'alpha': [0.0001, 0.05],
+
+    'learning_rate': ['constant', 'adaptive'],
+    'solver': ['sgd', 'adam'],
+}
+
+
+def hyperparameter_tune_tree(X:np.ndarray, y:np.ndarray,params_dt:dict)->dict:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47)
     hyp_tree  = GridSearchCV(tree.DecisionTreeClassifier(), params_dt)
     hyp_tree.fit(X_train, y_train)
-    return hyp_tree.best_params_
+    #results = {'best_estimate':hyp_tree.best_estimator_, 'best_parmas': hyp_tree.best_params_, }
+    return hyp_tree.best_estimator_, hyp_tree.best_params_, 
 
-def hyperparameter_tune_naive_bayes(X:np.ndarray, y:np.ndarray,params_nb:dict):
+def hyperparameter_tune_naive_bayes(X:np.ndarray, y:np.ndarray,params_nb:dict)->dict:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47)
     hype_bayes = GridSearchCV(bayes.GaussianNB(), params_nb)
     hype_bayes.fit(X_train, y_train)
-    return hype_bayes.best_params_
+    return hype_bayes.best_estimator_,hype_bayes.best_params_
 
-def hyperparameter_tune_knn(X:np.ndarray, y:np.ndarray,params_knn:dict):
+def hyperparameter_tune_knn(X:np.ndarray, y:np.ndarray,params_knn:dict)->dict:
     X_train, X_test,y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47)
     pipeline_knn = make_pipeline(preprocessing.StandardScaler(), neighbors.KNeighborsClassifier())
     hyp_knn = GridSearchCV(pipeline_knn, params_knn)
     hyp_knn.fit(X_train, y_train)
-    return hyp_knn.best_params_
+    return hyp_knn.best_estimator_, hyp_knn.best_params_
 
-def hyperparameter_tune_svm(X:np.ndarray, y:np.ndarray,params_svm:dict):
+def hyperparameter_tune_svm(X:np.ndarray, y:np.ndarray,params_svm:dict)->dict:
     X_train, X_test,y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47)
     pipeline_svm = make_pipeline(preprocessing.StandardScaler(), svm.SVC()) 
     hyp_svm = GridSearchCV(pipeline_svm, params_svm)
     hyp_svm.fit(X_train, y_train)
-    return hyp_svm.best_params_
+    return hyp_svm.best_estimator_,hyp_svm.best_params_
 
-def hyperparameter_tune_nn(X:np.ndarray, y:np.ndarray, params_nn:dict):
+def hyperparameter_tune_nn(X:np.ndarray, y:np.ndarray, params_nn:dict)->dict:
     X_train, X_test,y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=47)
     pipeline_nn = make_pipeline(preprocessing.StandardScaler(), neural_network.MLPClassifier(max_iter=500, early_stopping=True))
     hyp_nn = GridSearchCV(pipeline_nn, params_nn)
     hyp_nn.fit(X_train, y_train)
-    return hyp_nn.best_params_
+    return hyp_nn.best_estimator_,hyp_nn.best_params_
+
+def run_everything(X:np.ndarray, y:np.ndarray, params_dt: dict, params_nb: dict, params_knn: dict, params_svm: dict, params_nn: dict):
+    pass
+
